@@ -1,0 +1,6 @@
+[submodule "freesound-python"]
+	path = freesound-python
+	url = https://github.com/MTG/freesound-python.git
+[submodule "ontology"]
+	path = ontology
+	url = https://github.com/audioset/ontology.git

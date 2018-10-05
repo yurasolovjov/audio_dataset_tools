@@ -19,8 +19,9 @@ path2fs = os.path.normpath(t + '//freesound-python')
 sys.path.insert(0,path2fs)
 
 import freesound
+
 # Ключ доступа к Freesound API
-GEN_KEY_FREESOUND = str("PYqNLRWMA9URy55hSbzK5lGxJsgVJaBsvRx6giFG")
+# GEN_KEY_FREESOUND = str("PYqNLRWMA9URy55hSbzK5lGxJsgVJaBsvRx6giFG")
 
 # Ограничение на максимальное количество страниц
 LIMIT_PAGE = int(10)
@@ -53,13 +54,13 @@ def checkData(data, cl):
 
     return  flag,name
 
-def freesound_download(search_tokens, output, lim_page_count = 1):
+def freesound_download(search_tokens, output, lim_page_count = 1, key = None):
 
     lim_page_count = int(lim_page_count)
 
     try:
         client = freesound.FreesoundClient()
-        client.set_token(GEN_KEY_FREESOUND,"token")
+        client.set_token(key,"token")
         print(termcolor.colored("Authorisation successful ", "green"))
     except:
         print(termcolor.colored("Authorisation failed ", "red"))
@@ -96,13 +97,13 @@ def freesound_download(search_tokens, output, lim_page_count = 1):
         except:
             print(termcolor.colored(" Search is failed ", "red"))
 
-def freesound_analysis(search_tokens, output, lim_page_count = 1):
+def freesound_analysis(search_tokens, output, lim_page_count = 1, key = None):
 
     lim_page_count = int(lim_page_count)
 
     try:
         client = freesound.FreesoundClient()
-        client.set_token(GEN_KEY_FREESOUND,"token")
+        client.set_token(key,"token")
         print(termcolor.colored("Authorisation successful ", "green"))
     except:
         print(termcolor.colored("Authorisation failed ", "red"))
@@ -259,7 +260,7 @@ def audioset_download(audioset_file, outputDataset, frequency = 44100):
 
             print(termcolor.colored(info, color))
 
-        postprocessing(outputDataset_full,outputDataset, frequency = frequency)
+        audioset_converter(outputDataset_full,outputDataset, frequency = frequency)
 
 def audioset_analysis(audioset_file, inputOntology):
 
@@ -322,6 +323,7 @@ def main():
     parser.add_argument("-d", "--dataset", help="Dataset of AudioSet(Evaluate,balanced,unbalanced)", default=None)
     parser.add_argument("-p", "--proxy", help="Proxy", default=None)
     parser.add_argument("-f", "--frequency", help="Convert frequency", default=44100, type=int)
+    parser.add_argument("-k", "--gen_key_freesound", help="Generated key of freesound", default=None)
 
     args = parser.parse_args()
 
@@ -335,6 +337,8 @@ def main():
     output = os.path.abspath(args.out)
     input = os.path.abspath(args.input)
     frequency = int(args.frequency)
+    key = args.gen_key_freesound
+
 
     if args.proxy != None:
 
@@ -346,6 +350,9 @@ def main():
         os.environ['HTTPS_PROXY'] = proxy
 
     if tool == 'freesound':
+
+        if key is None:
+            raise Exception("Please, enter generate key of freesound")
 
         if keywords is None :
             raise Exception("Can not find keywords !")
@@ -367,9 +374,9 @@ def main():
             raise Exception("Not found keywords");
 
         if analysis_info == True:
-            freesound_analysis(search_tokens= search_tokens, output= output, lim_page_count= lim_page_count)
+            freesound_analysis(search_tokens= search_tokens, output= output, lim_page_count= lim_page_count, key = key)
         else:
-            freesound_download(search_tokens= search_tokens, output= output, lim_page_count= lim_page_count)
+            freesound_download(search_tokens= search_tokens, output= output, lim_page_count= lim_page_count, key = key)
 
     elif tool == 'urbansound':
         urbansound_download()

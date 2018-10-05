@@ -5,12 +5,9 @@ import analysis
 import csv
 import json
 import youtube_dl
-import numpy as np
-import matplotlib.pyplot as plt
-# import scipy.io.wavfile
-import numpy as np
 from glob2 import glob
 import subprocess
+import math
 
 # # Подключение модуля freesound
 mainfile = os.path.abspath(sys.modules['__main__'].__file__)
@@ -161,24 +158,6 @@ def cutOfPartFile(filename,outputFile, start, end, frequency = 44100):
 
     subprocess.call(command,shell=True)
 
-    # start = float(start)
-    # end = float(end)
-    #
-    # wave.open(filename,mode="r")
-    # fs1, y1 = scipy.io.wavfile.read(filename)
-    #
-    # newWavFileAsList = []
-    #
-    # if start >= y1.shape[0]:
-    #     start = y1.shape[0] - 1
-    # if end >= y1.shape[0]:
-    #     end = y1.shape[0] - 1
-    #
-    # newWavFileAsList.extend(y1[start:end])
-    #
-    # newWavFile = np.array(newWavFileAsList)
-    #
-    # scipy.io.wavfile.write(outputFile, fs1, newWavFile)
     pass
 
 def audioset_converter(incatalog,outcatalog, token = "*.wav", frequency = 44100):
@@ -195,11 +174,41 @@ def audioset_converter(incatalog,outcatalog, token = "*.wav", frequency = 44100)
         outfile = os.path.join(outcatalog,filename)
         cutOfPartFile(file,outfile,start=duration[0],end=duration[1])
 
-def urbansound_download():
-    print("")
+def urbansound_analysis(metafile):
 
-def urbansound_analysis():
-    print("")
+    if not os.path.exists(metafile):
+        raise Exception("Metafile UrbanSound is not found")
+
+    with open(metafile, "r") as f:
+
+        data = csv.reader(f)
+
+        classes = list()
+        duration_hist = list()
+
+        header = False
+
+        for line in data:
+
+            try:
+
+                duration = str(math.ceil(float(line[3]) - float(line[2])))
+                duration_hist.append(duration)
+                color = "green"
+                info = str("File: ") + line[0]+ str(" class: ") + line[-1]
+                if header:
+                    classes.append(line[-1])
+                else:
+                    header = True
+            except:
+                color = "red"
+                info = "File has been passed"
+
+            print(termcolor.colored(info, color))
+
+        analysis.histogram(classes, filename="urbansound_class")
+        analysis.histogram(duration_hist, filename="urabnsound_duration")
+
 
 def youtube_download(filepath, ytid):
 
@@ -307,8 +316,8 @@ def audioset_analysis(audioset_file, inputOntology):
 
                 print(termcolor.colored(info, color))
 
-        analysis.histogram(sx)
-        analysis.histogram(duration_hist)
+        analysis.histogram(sx, filename="audioset_class")
+        analysis.histogram(duration_hist, filename="audioset_duration")
 
 def main():
 
@@ -379,7 +388,10 @@ def main():
             freesound_download(search_tokens= search_tokens, output= output, lim_page_count= lim_page_count, key = key)
 
     elif tool == 'urbansound':
-        urbansound_download()
+        if not os.path.exists(input):
+            raise Exception("Metafile of urbansound is not found")
+
+        urbansound_analysis(input)
 
     elif tool == 'audioset':
         if analysis_info == True:

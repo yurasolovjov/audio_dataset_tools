@@ -170,7 +170,7 @@ def audioset_analysis(audioset_file, inputOntology):
         with open(inputOntology) as f:
             data = json.load(f)
 
-            counter = int(0)
+            duration_hist = list()
 
             for row in csv_data:
 
@@ -179,29 +179,31 @@ def audioset_analysis(audioset_file, inputOntology):
 
                 classes = row[3:]
 
-                print(row)
 
-                # t, n = checkData(data, classes[0].strip().replace('"', ""))
-                # sx.append(n)
-                for cl in classes:
-                    for dt in data:
+                try:
+                    color = "green"
+                    tmp_duration = str(float(row[2]) - float(row[1]))
+                    info = str("id: ") + str(row[0]) + str(" duration: ") + tmp_duration
 
-                        cl = str(cl).strip().replace('"',"")
+                    duration_hist.append(tmp_duration)
 
-                        if cl == dt['id'] and len(dt['child_ids']) == 0:
-                            sx.append(dt['name'])
+                    for cl in classes:
+                        for dt in data:
 
-                # if cl == dt['id']:
-                #     sx.append(dt['name'])
+                            cl = str(cl).strip().replace('"',"")
 
-                # status_string = "append: "+str(row)
-                # color = "green"
-                #
-                # status_string = "not found: "+str(row)
-                # color = "red"
+                            if cl == dt['id'] and len(dt['child_ids']) == 0:
+                                sx.append(dt['name'])
+                                info += str(" ")+str(dt['name']) + str(",")
+                except:
+                    color = "red"
+                    info = "File has been pass: " + str(row[0])
+                    continue
+
+                print(termcolor.colored(info, color))
 
         analysis.histogram(sx)
-                # print(termcolor.colored(status_string, color))
+        analysis.histogram(duration_hist)
 
 def main():
 
@@ -210,7 +212,7 @@ def main():
     parser.add_argument("-o", "--out", help="Output catalog", default="../audio_download")
     parser.add_argument("-l", "--lim_page", help="Limit of page", default=LIMIT_PAGE)
     parser.add_argument("-t","--tool", help="Tools of sound. (freesound, urbansound, youtube, audioset)", type=str, default="freesound")
-    parser.add_argument("-a", "--analysis", help="Analysis of data", default=False)
+    parser.add_argument("-a", "--analysis", help="Analysis of data. Create histogram file of html", default=False)
     parser.add_argument("-i", "--ontology",  help="Input file of ontology. JSON file", default=os.path.abspath('ontology//ontology.json'))
     parser.add_argument("-d","--dataset", help="Dataset of AudioSet(Evaluate,balanced,unbalanced)", default=None)
 

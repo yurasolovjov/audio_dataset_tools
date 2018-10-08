@@ -2,7 +2,7 @@ import os
 import plotly
 import plotly.graph_objs as go
 
-def histogram(data, outcatalog = ""):
+def histogram(data, filename = "tmp_histogram.html"):
 
     data = [
         go.Histogram(
@@ -15,7 +15,7 @@ def histogram(data, outcatalog = ""):
     plotly.offline.plot({
         "data": data,
         "layout": go.Layout(title="Histogram")
-    }, auto_open=True)
+    }, auto_open=True, filename=filename)
 
     pass
 

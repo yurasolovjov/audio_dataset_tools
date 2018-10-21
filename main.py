@@ -317,7 +317,7 @@ def audioset_analysis(audioset_file, inputOntology):
                 print(termcolor.colored(info, color))
 
         analysis.histogram(sx, filename="audioset_class")
-        analysis.histogram(duration_hist, filename="audioset_duration")
+        analysis.pie_chart(duration_hist, textinfo="percent + label", filename="audioset_duration")
 
 def main():
 
